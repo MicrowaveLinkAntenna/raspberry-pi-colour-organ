@@ -1,6 +1,8 @@
 import math
+import threading
 import numpy as np
 from pydub import AudioSegment
+from pydub.playback import play
 
 FREQUENCIES = (
     (4000, 20000),
@@ -73,3 +75,6 @@ def fft_split_average(fft_split_data: dict):
 
     return result
 
+def async_play(audio):
+    audio_thread = threading.Thread(target=play, args=(audio,))
+    audio_thread.start()

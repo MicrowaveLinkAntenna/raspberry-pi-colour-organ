@@ -4,20 +4,20 @@ import numpy as np
 #import pyaudio
 import wave
 import scipy.fftpack
-from pydub.playback import play
 
 from led import led_setup, led_clear, blink, blink_fft, LEDS
-from audio import load_file, get_processed_fft
+from audio import load_file, get_processed_fft, async_play
 
 def main(audio_file: str):
     print(f"Reading {audio_file}")
     led_setup()
     audio, sample_rate = load_file(audio_file)
     audio_length = len(audio)
-    block_size = 16
+
+    async_play(audio)
+    block_size = 64
     for i in range(0, audio_length, block_size):
         audio_block = audio[i:i+block_size]
-        play(audio_block)
         fft_data = get_processed_fft(audio_block.get_array_of_samples(), sample_rate)
         blink_fft(fft_data)
 
