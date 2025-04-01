@@ -16,6 +16,10 @@ WHITE = 27
 # The order of LEDS from representing highest to lowest frequencies
 LEDS = (RED, YELLOW, BLUE, GREEN, WHITE)
 
+# Multipliers used to adjust the weights of the frequency ranges so no one LED is always on or off
+LED_MULTIPLIERS = (1, 0.5, 0.3, 2, 2)
+
+# How long in miliseconds to keep the LED on for
 BLINK_DURATION = 5
 
 def gpio_setup():
@@ -47,8 +51,8 @@ def async_blink(pin: int, interval: int = BLINK_DURATION):
 def fft_led_state(fft_averages: dict, total_average: float):
     result = {}
     frequency_ranges = sorted(list(fft_averages.keys()), key=lambda x: x[1])
-    for led, frequency in zip(LEDS, frequency_ranges):
-        result[led] = fft_averages[frequency] > total_average
+    for led, multiplier, frequency in zip(LEDS, LED_MULTIPLIERS, frequency_ranges):
+        result[led] = fft_averages[frequency]*multiplier > total_average
     return result
 
 def blink_fft(fft_data: tuple):
