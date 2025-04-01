@@ -11,7 +11,7 @@ GREEN = 17
 WHITE = 27
 
 # The order of LEDS from representing highest to lowest frequencies
-LEDS = [RED, YELLOW, BLUE, GREEN, WHITE]
+LEDS = (RED, YELLOW, BLUE, GREEN, WHITE)
 
 def gpio_setup():
     GPIO.setwarnings(False)
