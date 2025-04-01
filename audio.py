@@ -44,20 +44,27 @@ def frequency_in_range(frequency: float, frequencies: tuple[int, int]):
             return frequency_range
     return (0, 0)
 
-def create_frequency_ranges(fft_frequencies, number_of_ranges: int) -> list[tuple[int, int]]:
+def highest_frequency(fft_data) -> float:
+    result = 0
+    for amplitude, frequency in zip(fft_data[0], fft_data[1]):
+        if amplitude > 0 and frequency > result:
+            result = frequency
+    return result
+
+def create_frequency_ranges(fft_data, number_of_ranges: int) -> list[tuple[int, int]]:
     result = []
+    fft_amplitudes, fft_frequencies = fft_data
     sorted_frequencies = np.sort(fft_frequencies)
     length = len(fft_frequencies)
-    max = sorted_frequencies[-1]
     min = sorted_frequencies[0]
-    range_size = (max - min) / number_of_ranges
+    max = highest_frequency(fft_data)
+    range_size = (max - min) / 5
     for i in range(number_of_ranges):
         result.append((float(range_size*i), float(range_size*(i+1))))
-    print(result)
     return result
 
 def fft_split(fft_data: tuple, number_of_ranges: int) -> dict:
-    frequency_ranges = create_frequency_ranges(fft_data[1], number_of_ranges)
+    frequency_ranges = create_frequency_ranges(fft_data, number_of_ranges)
     frequency_amplitudes = {frequency: [] for frequency in frequency_ranges}
 
     for amplitude, frequency in zip(fft_data[0], fft_data[1]):
