@@ -14,7 +14,7 @@ def main(audio_file: str):
     led_setup()
     audio, sample_rate = load_file(audio_file)
     audio_length = len(audio)
-    block_size = 64
+    block_size = 16
     for i in range(0, audio_length, block_size):
         audio_block = audio[i:i+block_size]
         play(audio_block)
