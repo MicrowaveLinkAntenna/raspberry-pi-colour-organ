@@ -6,19 +6,20 @@ import wave
 import scipy.fftpack
 from pydub.playback import play
 
-from led import led_setup, led_clear, blink, LEDS
+from led import led_setup, led_clear, blink, blink_fft, LEDS
 from audio import load_file, get_processed_fft
 
 def main(audio_file: str):
     print(f"Reading {audio_file}")
-    led_setup(LEDS)
+    led_setup()
     audio, sample_rate = load_file(audio_file)
     audio_length = len(audio)
-    block_size = 1024
+    block_size = 64
     for i in range(0, audio_length, block_size):
         audio_block = audio[i:i+block_size]
         play(audio_block)
-        print(get_processed_fft(audio_block.get_array_of_samples(), sample_rate))
+        fft_data = get_processed_fft(audio_block.get_array_of_samples(), sample_rate)
+        blink_fft(fft_data)
 
 def no_audio_file():
     print("No audio file specified, running test sequence.")
@@ -31,4 +32,4 @@ if __name__ == "__main__":
     except IndexError:
         no_audio_file()
     except KeyboardInterrupt:
-        led_clear(LEDS)
+        led_clear()
