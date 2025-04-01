@@ -4,6 +4,10 @@ import numpy as np
 from pydub import AudioSegment
 from pydub.playback import play
 
+# Everything higher than this value will be grouped together
+# Prevents the amplitudes of the highest frequencies from always being 0
+FREQUENCY_SECOND_HIGHEST_CUTOFF = 20000
+
 def load_file(path: str):
     audio = AudioSegment.from_file(path).set_channels(1)
     return audio, audio.frame_rate
@@ -51,16 +55,20 @@ def highest_frequency(fft_data) -> float:
             result = frequency
     return result
 
-def create_frequency_ranges(fft_data, number_of_ranges: int) -> list[tuple[int, int]]:
+def create_frequency_ranges(fft_data, number_of_ranges: int, cutoff: int = FREQUENCY_SECOND_HIGHEST_CUTOFF) -> list[tuple[int, int]]:
     result = []
     fft_amplitudes, fft_frequencies = fft_data
     sorted_frequencies = np.sort(fft_frequencies)
     length = len(fft_frequencies)
     min = sorted_frequencies[0]
     max = highest_frequency(fft_data)
-    range_size = (max - min) / 5
+    range_size = cutoff / (number_of_ranges - 1)
     for i in range(number_of_ranges):
-        result.append((float(range_size*i), float(range_size*(i+1))))
+        if 1 != number_of_ranges - 1:
+            result.append((float(range_size*i), float(range_size*(i+1))))
+        else:
+            result.append((cutoff, max))
+
     return result
 
 def fft_split(fft_data: tuple, number_of_ranges: int) -> dict:

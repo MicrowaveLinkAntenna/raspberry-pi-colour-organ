@@ -17,7 +17,7 @@ WHITE = 27
 LEDS = (RED, YELLOW, BLUE, GREEN, WHITE)
 
 # Multipliers used to adjust the weights of the frequency ranges so no one LED is always on or off
-LED_MULTIPLIERS = (1, 0.5, 0.3, 2, 2)
+LED_MULTIPLIERS = (1, 1, 0.5, 1, 0.5)
 
 # How long in miliseconds to keep the LED on for
 BLINK_DURATION = 5
