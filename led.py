@@ -32,6 +32,6 @@ def led_clear(leds: list[int]):
 
 def blink(pin: int, interval: int):
     GPIO.output(pin, True)
-    time.sleep(1000)
+    time.sleep(interval/1000)
     GPIO.output(pin, False)
 

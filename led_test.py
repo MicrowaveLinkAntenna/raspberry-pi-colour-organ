@@ -4,7 +4,7 @@ def main():
     led_setup(LEDS)
     while True:
         for led in LEDS:
-            blink(led, 1)
+            blink(led, 500)
 
 if __name__ == "__main__":
     try:
