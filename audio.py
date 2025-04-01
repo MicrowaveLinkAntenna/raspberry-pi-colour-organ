@@ -4,15 +4,6 @@ import numpy as np
 from pydub import AudioSegment
 from pydub.playback import play
 
-FREQUENCIES = (
-    (4000, 20000),
-    (2000, 4000),
-    (500, 2000),
-    (250, 500),
-    (20, 250),
-    (0, 0) # Placeholder for frequencies out of range to prevent index errors
-)
-
 def load_file(path: str):
     audio = AudioSegment.from_file(path).set_channels(1)
     return audio, audio.frame_rate
@@ -47,19 +38,34 @@ def get_processed_fft(audio, sample_rate: int):
     fft_normalized = fft_normalize(fft_result, samples)
     return fft_normalized, fft_frequencies
 
-def frequency_in_range(frequency: float, frequencies: tuple = FREQUENCIES):
+def frequency_in_range(frequency: float, frequencies: tuple[int, int]):
     for frequency_range in frequencies:
         if frequency_range[0] <= frequency <= frequency_range[1]:
             return frequency_range
     return (0, 0)
 
-def fft_split(fft_data: tuple, frequencies: tuple = FREQUENCIES) -> dict:
-    frequency_ranges = {frequency: [] for frequency in frequencies}
+def create_frequency_ranges(fft_frequencies, number_of_ranges: int) -> list[tuple[int, int]]:
+    result = []
+    sorted_frequencies = np.sort(fft_frequencies)
+    length = len(fft_frequencies)
+    max = sorted_frequencies[-1]
+    min = sorted_frequencies[0]
+    range_size = (max - min) / number_of_ranges
+    for i in range(number_of_ranges):
+        result.append((float(range_size*i), float(range_size*(i+1))))
+    print(result)
+    return result
+
+def fft_split(fft_data: tuple, number_of_ranges: int) -> dict:
+    frequency_ranges = create_frequency_ranges(fft_data[1], number_of_ranges)
+    frequency_amplitudes = {frequency: [] for frequency in frequency_ranges}
 
     for amplitude, frequency in zip(fft_data[0], fft_data[1]):
         if amplitude != np.float64(np.inf):
-            frequency_ranges[frequency_in_range(frequency, frequencies)].append(amplitude)
-    return frequency_ranges
+            frequency_range = frequency_in_range(frequency, frequency_ranges)
+            if frequency_range != (0, 0):
+                frequency_amplitudes[frequency_range].append(amplitude)
+    return frequency_amplitudes
 
 def float_or_zero(value: np.float64):
     result = float(value)
@@ -71,9 +77,8 @@ def fft_split_average(fft_split_data: dict):
         average = np.mean(amplitudes)
         result[frequency] = float_or_zero(average)
     total_average = np.mean(list(result.values()))
-    result["Total"] = float_or_zero(total_average)
 
-    return result
+    return result, float_or_zero(total_average)
 
 def async_play(audio):
     audio_thread = threading.Thread(target=play, args=(audio,))

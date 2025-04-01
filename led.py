@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 import time
 import threading
 
-from audio import fft_split_average, fft_split, FREQUENCIES
+from audio import fft_split_average, fft_split
 
 # The GPIO pins for each colour LED
 RED = 2
@@ -15,8 +15,6 @@ WHITE = 27
 
 # The order of LEDS from representing highest to lowest frequencies
 LEDS = (RED, YELLOW, BLUE, GREEN, WHITE)
-
-LED_FREQUENCIES = {l: f for l, f in zip(LEDS, FREQUENCIES)}
 
 BLINK_DURATION = 5
 
@@ -46,17 +44,17 @@ def async_blink(pin: int, interval: int = BLINK_DURATION):
     thread = threading.Thread(target=blink, args=(pin, interval))
     thread.start()
 
-def fft_led_state(fft_averages: dict, led_mapping: dict = LED_FREQUENCIES):
+def fft_led_state(fft_averages: dict, total_average: float):
     result = {}
-    total_average = fft_averages["Total"]
-    for led, frequency in led_mapping.items():
+    frequency_ranges = sorted(list(fft_averages.keys()), key=lambda x: x[1])
+    for led, frequency in zip(LEDS, frequency_ranges):
         result[led] = fft_averages[frequency] > total_average
     return result
 
-def blink_fft(fft_data: tuple, led_mapping: dict = LED_FREQUENCIES):
-    amplitudes = fft_split(fft_data)
-    averages = fft_split_average(amplitudes)
+def blink_fft(fft_data: tuple):
+    amplitudes = fft_split(fft_data, len(LEDS))
+    averages, total_average = fft_split_average(amplitudes)
     print(averages)
-    for led, state in fft_led_state(averages, led_mapping).items():
+    for led, state in fft_led_state(averages, total_average).items():
         if state:
             async_blink(led)
