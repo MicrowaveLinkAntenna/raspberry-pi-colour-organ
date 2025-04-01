@@ -4,7 +4,7 @@ import numpy as np
 #import pyaudio
 import wave
 import scipy.fftpack
-import pydub.playback
+from pydub.playback import play
 
 from led import led_setup, led_clear, blink, LEDS
 from audio import load_file, fft
@@ -17,7 +17,8 @@ def main(audio_file: str):
     block_size = 1024
     for i in range(0, audio_length, block_size):
         audio_block = audio[i:i+block_size]
-        print(fft(audio_block, sample_rate))
+        play(audio_block)
+        print(fft(audio_block.get_array_of_samples(), sample_rate))
 
 def no_audio_file():
     print("No audio file specified, running test sequence.")
