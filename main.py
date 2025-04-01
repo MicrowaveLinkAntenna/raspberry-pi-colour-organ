@@ -1,6 +1,9 @@
 import sys
 import numpy as np
-import librosa
+#import librosa
+#import pyaudio
+import wave
+import scipy.fftpack
 
 from led import led_setup, led_clear, blink, LEDS
 from audio import load_file
@@ -8,10 +11,8 @@ from audio import load_file
 def main(audio_file: str):
     print(f"Reading {audio_file}")
     led_setup(LEDS)
-    audio_data, sample_rate = load_file(audio_file)
-    fft = np.fft.fft(audio_data)
-
-    print(audio_data, sample_rate, fft)
+    audio = load_file(audio_file)
+    print(audio)
 
 def no_audio_file():
     print("No audio file specified, running test sequence.")
