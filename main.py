@@ -6,9 +6,13 @@ from led import led_setup, led_clear, blink, LEDS
 from audio import load_file
 
 def main(audio_file: str):
+    print(f"Reading {audio_file}")
     led_setup(LEDS)
-    audio_data, sample_rate = load_file
-    
+    audio_data, sample_rate = load_file(audio_file)
+    fft = np.fft.fft(audio_data)
+
+    print(audio_data, sample_rate, fft)
+
 def no_audio_file():
     print("No audio file specified, running test sequence.")
     from led_test import main as test
