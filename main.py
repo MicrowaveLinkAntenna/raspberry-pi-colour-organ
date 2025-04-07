@@ -1,4 +1,5 @@
 import sys
+import time
 import numpy as np
 #import librosa
 #import pyaudio
@@ -8,11 +9,22 @@ import scipy.fftpack
 from led import led_setup, led_clear, blink, blink_fft, LEDS
 from audio import load_file, get_processed_fft, async_play
 
+def delay():
+    print("File loaded, playing in")
+    print("3")
+    time.sleep(1)
+    print("2")
+    time.sleep(1)
+    print("1")
+    time.sleep(1)
+
 def main(audio_file: str):
     print(f"Reading {audio_file}")
     led_setup()
     audio, sample_rate = load_file(audio_file)
     audio_length = len(audio)
+
+    delay()
 
     async_play(audio)
     block_size = 64
